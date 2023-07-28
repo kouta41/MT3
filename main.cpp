@@ -40,6 +40,8 @@ Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 
 //3座標変換
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
+
+
 	return;
 }
 Vector3 translate{ 4.1f,2.6f,0.8f };
