@@ -130,7 +130,6 @@ Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
 		m1.m[3][3] * m2.m[3][3];
 	return m4;
 }
-
 //  アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	Matrix4x4 MakeAffineMatrix;
@@ -166,13 +165,60 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	return MakeAffineMatrix;
 }
 
+//透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+	Matrix4x4 MakePerspectiveFovMatrix;
+	MakePerspectiveFovMatrix.m[0][0] = 1 / fovY * std::tan(2 / aspectRatio);
+	MakePerspectiveFovMatrix.m[0][1] = 0.0f;
+	MakePerspectiveFovMatrix.m[0][2] = 0.0f;
+	MakePerspectiveFovMatrix.m[0][3] = 0.0f;
 
-Vector3 scale{ 1.2f,0.79f, - 2.1f };
-Vector3 rotate{ 0.4f,1.43f, -0.8f };
-Vector3 translate{ 2.7f,-4.15f, 1.57f };
-Matrix4x4 worldMatrix = MakeAffineMatrix(scale, rotate, translate);
+	MakePerspectiveFovMatrix.m[1][0] = 0.0f;
+	MakePerspectiveFovMatrix.m[1][1] = std::tan(2 / aspectRatio);
+	MakePerspectiveFovMatrix.m[1][2] = 0.0f;
+	MakePerspectiveFovMatrix.m[1][3] = 0.0f;
+
+	MakePerspectiveFovMatrix.m[2][0] = 0.0f;
+	MakePerspectiveFovMatrix.m[2][1] = 0.0f;
+	MakePerspectiveFovMatrix.m[2][2] = nearClip / (nearClip - farClip);
+	MakePerspectiveFovMatrix.m[2][3] = 1.0f;
+
+	MakePerspectiveFovMatrix.m[3][0] = 0.0f;
+	MakePerspectiveFovMatrix.m[3][1] = 0.0f;
+	MakePerspectiveFovMatrix.m[3][2] = -farClip * nearClip / (nearClip - farClip);
+	MakePerspectiveFovMatrix.m[3][3] = 0.0f;
+
+	return MakePerspectiveFovMatrix;
+}
+
+//正射影行列
+Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom, float nearClip, float farClip) {
+	Matrix4x4 MakOrthographicMatrix;
+	MakOrthographicMatrix.m[0][0] = 2 / (right - left);
+	MakOrthographicMatrix.m[0][1] = 0;
+	MakOrthographicMatrix.m[0][2] = 0;
+	MakOrthographicMatrix.m[0][3] = 0;
+
+	MakOrthographicMatrix.m[1][0] = 0;
+	MakOrthographicMatrix.m[1][1] = 2 / (top-bottom);
+	MakOrthographicMatrix.m[1][2] = 0;
+	MakOrthographicMatrix.m[1][3] = 0;
+
+	MakOrthographicMatrix.m[2][0] = 0;
+	MakOrthographicMatrix.m[2][1] = 0;
+	MakOrthographicMatrix.m[2][2] = 1 / (farClip - nearClip);
+	MakOrthographicMatrix.m[2][3] = 0;
+
+	MakOrthographicMatrix.m[3][0] = (left - right) / (left - right);
+	MakOrthographicMatrix.m[3][1] = (top + bottom) / (bottom - top);
+	MakOrthographicMatrix.m[3][2] = farClip / (nearClip - farClip);
+	MakOrthographicMatrix.m[3][3] = 1;
+
+	return MakOrthographicMatrix;
+}
 
 
+Matrix4x4 orthographicmatrix = MakOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
 
 static const int kRowHeight = 20;
 static const int kColumnWindth = 60;
@@ -222,7 +268,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		MatrixScreenPrintf(0, kRowHeight, worldMatrix, "worldMatrix");
+		MatrixScreenPrintf(0, kRowHeight, orthographicmatrix, "orthographicmatrix");
 
 		///
 		/// ↑描画処理ここまで
