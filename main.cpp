@@ -165,7 +165,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	return MakeAffineMatrix;
 }
 
-//透視投影行列
+//1.透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 	Matrix4x4 MakePerspectiveFovMatrix;
 	MakePerspectiveFovMatrix.m[0][0] = 1 / fovY * std::tan(2 / aspectRatio);
@@ -191,7 +191,7 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip
 	return MakePerspectiveFovMatrix;
 }
 
-//正射影行列
+//2.正射影行列
 Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom, float nearClip, float farClip) {
 	Matrix4x4 MakOrthographicMatrix;
 	MakOrthographicMatrix.m[0][0] = 2 / (right - left);
@@ -217,6 +217,31 @@ Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom
 	return MakOrthographicMatrix;
 }
 
+//3.ビューポート変換行列
+Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
+	Matrix4x4 MakeViewportMatrix;
+	MakeViewportMatrix.m[0][0] = width / 2;
+	MakeViewportMatrix.m[0][1] = 0;
+	MakeViewportMatrix.m[0][2] = 0;
+	MakeViewportMatrix.m[0][3] = 0;
+
+	MakeViewportMatrix.m[1][0] = 0;
+	MakeViewportMatrix.m[1][1] = -height / 2;
+	MakeViewportMatrix.m[1][2] = 0;
+	MakeViewportMatrix.m[1][3] = 0;
+
+	MakeViewportMatrix.m[2][0] = 0;
+	MakeViewportMatrix.m[2][1] = 0;
+	MakeViewportMatrix.m[2][2] = maxDepth-minDepth;
+	MakeViewportMatrix.m[2][3] = 0;
+
+	MakeViewportMatrix.m[3][0] = (width/ 2) + left;
+	MakeViewportMatrix.m[3][1] = (height / 2) + top;
+	MakeViewportMatrix.m[3][2] = minDepth;
+	MakeViewportMatrix.m[3][3] = 1;
+
+	return MakeViewportMatrix;
+}
 
 Matrix4x4 orthographicmatrix = MakOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
 
