@@ -4,6 +4,9 @@ Vector3 Add(const Vector3& v1, const Vector3& v2)
 {
 	return Vector3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	return Vector3{ v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
+}
 
 Vector3 Transforme(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result;
@@ -17,6 +20,51 @@ Vector3 Transforme(const Vector3& vector, const Matrix4x4& matrix) {
 	result.z /= w;
 
 	return result;
+}
+
+// 回転行列
+Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
+	Matrix4x4 m4;
+	m4.m[0][0] = m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] +
+		m1.m[0][3] * m2.m[3][0];
+	m4.m[0][1] = m1.m[0][0] * m2.m[0][1] + m1.m[0][1] * m2.m[1][1] + m1.m[0][2] * m2.m[2][1] +
+		m1.m[0][3] * m2.m[3][1];
+	m4.m[0][2] = m1.m[0][0] * m2.m[0][2] + m1.m[0][1] * m2.m[1][2] + m1.m[0][2] * m2.m[2][2] +
+		m1.m[0][3] * m2.m[3][2];
+	m4.m[0][3] = m1.m[0][0] * m2.m[0][3] + m1.m[0][1] * m2.m[1][3] + m1.m[0][2] * m2.m[2][3] +
+		m1.m[0][3] * m2.m[3][3];
+
+	m4.m[1][0] = m1.m[1][0] * m2.m[0][0] + m1.m[1][1] * m2.m[1][0] + m1.m[1][2] * m2.m[2][0] +
+		m1.m[1][3] * m2.m[3][0];
+	m4.m[1][1] = m1.m[1][0] * m2.m[0][1] + m1.m[1][1] * m2.m[1][1] + m1.m[1][2] * m2.m[2][1] +
+		m1.m[1][3] * m2.m[3][1];
+	m4.m[1][2] = m1.m[1][0] * m2.m[0][2] + m1.m[1][1] * m2.m[1][2] + m1.m[1][2] * m2.m[2][2] +
+		m1.m[1][3] * m2.m[3][2];
+	m4.m[1][3] = m1.m[1][0] * m2.m[0][3] + m1.m[1][1] * m2.m[1][3] + m1.m[1][2] * m2.m[2][3] +
+		m1.m[1][3] * m2.m[3][3];
+
+	m4.m[2][0] = m1.m[2][0] * m2.m[0][0] + m1.m[2][1] * m2.m[1][0] + m1.m[2][2] * m2.m[2][0] +
+		m1.m[2][3] * m2.m[3][0];
+	m4.m[2][1] = m1.m[2][0] * m2.m[0][1] + m1.m[2][1] * m2.m[1][1] + m1.m[2][2] * m2.m[2][1] +
+		m1.m[2][3] * m2.m[3][1];
+	m4.m[2][2] = m1.m[2][0] * m2.m[0][2] + m1.m[2][1] * m2.m[1][2] + m1.m[2][2] * m2.m[2][2] +
+		m1.m[2][3] * m2.m[3][2];
+	m4.m[2][3] = m1.m[2][0] * m2.m[0][3] + m1.m[2][1] * m2.m[1][3] + m1.m[2][2] * m2.m[2][3] +
+		m1.m[2][3] * m2.m[3][3];
+
+	m4.m[3][0] = m1.m[3][0] * m2.m[0][0] + m1.m[3][1] * m2.m[1][0] + m1.m[3][2] * m2.m[2][0] +
+		m1.m[3][3] * m2.m[3][0];
+	m4.m[3][1] = m1.m[3][0] * m2.m[0][1] + m1.m[3][1] * m2.m[1][1] + m1.m[3][2] * m2.m[2][1] +
+		m1.m[3][3] * m2.m[3][1];
+	m4.m[3][2] = m1.m[3][0] * m2.m[0][2] + m1.m[3][1] * m2.m[1][2] + m1.m[3][2] * m2.m[2][2] +
+		m1.m[3][3] * m2.m[3][2];
+	m4.m[3][3] = m1.m[3][0] * m2.m[0][3] + m1.m[3][1] * m2.m[1][3] + m1.m[3][2] * m2.m[2][3] +
+		m1.m[3][3] * m2.m[3][3];
+	return m4;
+}
+
+Vector3 Multiply(float scalar, const Vector3& v) {
+	return { v.x * scalar,v.y * scalar,v.z * scalar };
 }
 
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
@@ -48,6 +96,7 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 		Novice::DrawLine((int)screenVerticles[0].x, (int)screenVerticles[0].y, (int)screenVerticles[1].x, (int)screenVerticles[1].y, 0x000000FF);
 	}
 }
+
 void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
 	const uint32_t kSubDivision = 30;
 	const float kLonEvery = 2.0f * (float)M_PI / float(kSubDivision);
@@ -90,4 +139,38 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 		}
 	}
 
+};
+
+float Dot(const Vector3& v1, const Vector3& v2) {
+	float result = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+	return result;
+}
+
+Vector3 Normalize(const Vector3& v1) {
+	Vector3 Result = v1;
+	float length = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
+	assert(length != 0);
+	Result.x /= length;
+	Result.y /= length;
+	Result.z /= length;
+	return Result;
+}
+
+//正射影ベクトル
+Vector3 Project(const Vector3& v1, const Vector3& v2)
+{
+	Vector3 result;
+	result = Multiply(Dot(v1, Normalize(v2)), Normalize(v2));
+	return result;
+}
+//最近接点
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment)
+{
+	float length = sqrt(segment.diff.x * segment.diff.x + segment.diff.y * segment.diff.y + segment.diff.z * segment.diff.z);
+	Vector3 normaliseSegment = { segment.diff.x / length,segment.diff.y / length,segment.diff.z / length };
+
+	float distance = Dot(Subtract(point, segment.origin), normaliseSegment);
+	distance = std::clamp(distance, 0.0f, length);
+	Vector3 proj = Multiply(distance, normaliseSegment);
+	return Add(segment.origin, proj);
 };

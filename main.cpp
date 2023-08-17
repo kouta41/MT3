@@ -11,6 +11,8 @@
 
 const char kWindowTitle[] = "LC1B_18_ツシマ_コウタ	";
 
+Matrix4x4 MakeCamera();
+
 
 
 //逆行列
@@ -125,47 +127,6 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 
 	return MakeRotateZMatrix;
 }
-// 回転行列
-Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
-	Matrix4x4 m4;
-	m4.m[0][0] = m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] +
-		m1.m[0][3] * m2.m[3][0];
-	m4.m[0][1] = m1.m[0][0] * m2.m[0][1] + m1.m[0][1] * m2.m[1][1] + m1.m[0][2] * m2.m[2][1] +
-		m1.m[0][3] * m2.m[3][1];
-	m4.m[0][2] = m1.m[0][0] * m2.m[0][2] + m1.m[0][1] * m2.m[1][2] + m1.m[0][2] * m2.m[2][2] +
-		m1.m[0][3] * m2.m[3][2];
-	m4.m[0][3] = m1.m[0][0] * m2.m[0][3] + m1.m[0][1] * m2.m[1][3] + m1.m[0][2] * m2.m[2][3] +
-		m1.m[0][3] * m2.m[3][3];
-
-	m4.m[1][0] = m1.m[1][0] * m2.m[0][0] + m1.m[1][1] * m2.m[1][0] + m1.m[1][2] * m2.m[2][0] +
-		m1.m[1][3] * m2.m[3][0];
-	m4.m[1][1] = m1.m[1][0] * m2.m[0][1] + m1.m[1][1] * m2.m[1][1] + m1.m[1][2] * m2.m[2][1] +
-		m1.m[1][3] * m2.m[3][1];
-	m4.m[1][2] = m1.m[1][0] * m2.m[0][2] + m1.m[1][1] * m2.m[1][2] + m1.m[1][2] * m2.m[2][2] +
-		m1.m[1][3] * m2.m[3][2];
-	m4.m[1][3] = m1.m[1][0] * m2.m[0][3] + m1.m[1][1] * m2.m[1][3] + m1.m[1][2] * m2.m[2][3] +
-		m1.m[1][3] * m2.m[3][3];
-
-	m4.m[2][0] = m1.m[2][0] * m2.m[0][0] + m1.m[2][1] * m2.m[1][0] + m1.m[2][2] * m2.m[2][0] +
-		m1.m[2][3] * m2.m[3][0];
-	m4.m[2][1] = m1.m[2][0] * m2.m[0][1] + m1.m[2][1] * m2.m[1][1] + m1.m[2][2] * m2.m[2][1] +
-		m1.m[2][3] * m2.m[3][1];
-	m4.m[2][2] = m1.m[2][0] * m2.m[0][2] + m1.m[2][1] * m2.m[1][2] + m1.m[2][2] * m2.m[2][2] +
-		m1.m[2][3] * m2.m[3][2];
-	m4.m[2][3] = m1.m[2][0] * m2.m[0][3] + m1.m[2][1] * m2.m[1][3] + m1.m[2][2] * m2.m[2][3] +
-		m1.m[2][3] * m2.m[3][3];
-
-	m4.m[3][0] = m1.m[3][0] * m2.m[0][0] + m1.m[3][1] * m2.m[1][0] + m1.m[3][2] * m2.m[2][0] +
-		m1.m[3][3] * m2.m[3][0];
-	m4.m[3][1] = m1.m[3][0] * m2.m[0][1] + m1.m[3][1] * m2.m[1][1] + m1.m[3][2] * m2.m[2][1] +
-		m1.m[3][3] * m2.m[3][1];
-	m4.m[3][2] = m1.m[3][0] * m2.m[0][2] + m1.m[3][1] * m2.m[1][2] + m1.m[3][2] * m2.m[2][2] +
-		m1.m[3][3] * m2.m[3][2];
-	m4.m[3][3] = m1.m[3][0] * m2.m[0][3] + m1.m[3][1] * m2.m[1][3] + m1.m[3][2] * m2.m[2][3] +
-		m1.m[3][3] * m2.m[3][3];
-	return m4;
-}
-
 
 
 //  アフィン変換行列
@@ -335,6 +296,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	kLoccalVerices[1] = { 1.0f,1.0f,0.0f };
 	kLoccalVerices[2] = { -1.0f,1.0f,0.0f };
 
+	Segment segment{ {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
+	Vector3 point{ -1.5f,0.6f,0.6f };
+	Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
+	Vector3 closestPoint = ClosestPoint(point, segment);
+	Sphere pointSphere{ point,0.01f };
+	Sphere closestPointSphere{ closestPoint,0.01f };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -362,6 +329,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
 		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+
+		Vector3 start = Transforme(Transforme(segment.origin, WorldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transforme(Transforme(Add(segment.origin, segment.diff), WorldViewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
 		ImGui::End();
 
 		
