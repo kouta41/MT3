@@ -216,7 +216,6 @@ Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom
 
 	return MakOrthographicMatrix;
 }
-
 //3.ビューポート変換行列
 Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
 	Matrix4x4 MakeViewportMatrix;
@@ -242,6 +241,19 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 
 	return MakeViewportMatrix;
 }
+
+
+Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	Vector3 Cross;
+	Cross.x = v1.y * v2.z - v1.z * v2.y;
+	Cross.y = v1.z * v2.x - v1.x * v2.z;
+	Cross.z = v1.x * v2.y - v1.y * v2.x;
+	return Cross;
+}
+
+Vector3 v1{ 1.2f,-3.9f,2.5f };
+Vector3 v2{ 2.8f,0.4f,-1.3f };
+Vector3 cross = Cross(v1, v2);
 
 Matrix4x4 orthographicmatrix = MakOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
 Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f, 1000.0f);
@@ -296,9 +308,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		MatrixScreenPrintf(0, kRowHeight, orthographicmatrix, "orthographicmatrix");
-		MatrixScreenPrintf(0, kRowHeight*6, perspectiveFovMatrix, "perspectiveFovMatrix");
-		MatrixScreenPrintf(0, kRowHeight*11, viewportMatrix, "viewportMatrix");
+		VectorScreenPrintf(0, 0, cross, "Cross");
+		
 
 		///
 		/// ↑描画処理ここまで
