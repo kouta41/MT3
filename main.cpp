@@ -11,10 +11,6 @@
 
 const char kWindowTitle[] = "LC1B_18_ツシマ_コウタ	";
 
-Matrix4x4 MakeCamera();
-
-
-
 //逆行列
 Matrix4x4 Inverse(const Matrix4x4& m) {
 	float A;
@@ -51,7 +47,6 @@ Matrix4x4 Inverse(const Matrix4x4& m) {
 
 	return Inverse;
 }
-
 // X軸周りの回転行列
 Matrix4x4 MakeRotateXMatrix(float radian) {
 	Matrix4x4 MakeRotateXMatrix;
@@ -127,8 +122,6 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 
 	return MakeRotateZMatrix;
 }
-
-
 //  アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	Matrix4x4 MakeAffineMatrix;
@@ -163,7 +156,6 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 
 	return MakeAffineMatrix;
 }
-
 //1.透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 	Matrix4x4 MakePerspectiveFovMatrix;
@@ -189,7 +181,6 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip
 
 	return MakePerspectiveFovMatrix;
 }
-
 //2.正射影行列
 Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom, float nearClip, float farClip) {
 	Matrix4x4 MakOrthographicMatrix;
@@ -215,7 +206,7 @@ Matrix4x4 MakOrthographicMatrix(float left, float right, float top, float bottom
 
 	return MakOrthographicMatrix;
 }
-//3.ビューポート変換行列
+//3.ビューポート変換行
 Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
 	Matrix4x4 MakeViewportMatrix;
 	MakeViewportMatrix.m[0][0] = width / 2;
@@ -240,8 +231,6 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 
 	return MakeViewportMatrix;
 }
-
-
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 	Vector3 Cross;
 	Cross.x = v1.y * v2.z - v1.z * v2.y;
@@ -296,12 +285,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	kLoccalVerices[1] = { 1.0f,1.0f,0.0f };
 	kLoccalVerices[2] = { -1.0f,1.0f,0.0f };
 
-	Segment segment{ {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
+	Sphere sphere1 = { 0.0f,0.0f, 0.0f, 0.5f };
+	int sphereColor = WHITE;
+	Sphere sphere2 = { 2.0f,0.0f, 0.0f, 0.5f };
+
+	/*Segment segment{ {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
 	Vector3 point{ -1.5f,0.6f,0.6f };
 	Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
 	Vector3 closestPoint = ClosestPoint(point, segment);
 	Sphere pointSphere{ point,0.01f };
-	Sphere closestPointSphere{ closestPoint,0.01f };
+	Sphere closestPointSphere{ closestPoint,0.01f };*/
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -327,13 +320,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		//スフィアのImGui
+		ImGui::DragFloat3("Sphere1Center", &sphere1.center.x, 0.01f);
+		ImGui::DragFloat("Sphere1Radius", &sphere1.radius, 0.01f);
+		ImGui::DragFloat3("Sphere2Center", &sphere2.center.x, 0.01f);
+		ImGui::DragFloat("Sphere2Radius", &sphere2.radius, 0.01f);
 
-		Vector3 start = Transforme(Transforme(segment.origin, WorldViewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transforme(Transforme(Add(segment.origin, segment.diff), WorldViewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		if (IsCollision(sphere1, sphere2) == true) {
+			sphereColor = RED;
+		}
+		else {
+			sphereColor = WHITE;
+		}
+
+	
 
 		ImGui::End();
 
@@ -346,8 +346,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		//
 		DrawGrid(WorldViewProjectionMatrix, viewportMatrix);
-		DrawSphere(sphere, WorldViewProjectionMatrix, viewportMatrix, BLACK);
-
+		DrawSphere(sphere1, WorldViewProjectionMatrix, viewportMatrix, sphereColor);
+		DrawSphere(sphere2, WorldViewProjectionMatrix, viewportMatrix, WHITE);
 		VectorScreenPrintf(0, 0, cross, "Cross");
 		
 
