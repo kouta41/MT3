@@ -168,24 +168,24 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 //1.透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 	Matrix4x4 MakePerspectiveFovMatrix;
-	MakePerspectiveFovMatrix.m[0][0] = 1 / fovY * std::tan(2 / aspectRatio);
+	MakePerspectiveFovMatrix.m[0][0] = 1 / aspectRatio * (1/std::tan( fovY/2));
 	MakePerspectiveFovMatrix.m[0][1] = 0.0f;
 	MakePerspectiveFovMatrix.m[0][2] = 0.0f;
 	MakePerspectiveFovMatrix.m[0][3] = 0.0f;
 
 	MakePerspectiveFovMatrix.m[1][0] = 0.0f;
-	MakePerspectiveFovMatrix.m[1][1] = std::tan(2 / aspectRatio);
+	MakePerspectiveFovMatrix.m[1][1] = 1 / std::tan( fovY/2);
 	MakePerspectiveFovMatrix.m[1][2] = 0.0f;
 	MakePerspectiveFovMatrix.m[1][3] = 0.0f;
 
 	MakePerspectiveFovMatrix.m[2][0] = 0.0f;
 	MakePerspectiveFovMatrix.m[2][1] = 0.0f;
-	MakePerspectiveFovMatrix.m[2][2] = nearClip / (nearClip - farClip);
+	MakePerspectiveFovMatrix.m[2][2] = farClip /(farClip-nearClip);
 	MakePerspectiveFovMatrix.m[2][3] = 1.0f;
 
 	MakePerspectiveFovMatrix.m[3][0] = 0.0f;
 	MakePerspectiveFovMatrix.m[3][1] = 0.0f;
-	MakePerspectiveFovMatrix.m[3][2] = -farClip * nearClip / (nearClip - farClip);
+	MakePerspectiveFovMatrix.m[3][2] = -(farClip * nearClip) / (nearClip - farClip);
 	MakePerspectiveFovMatrix.m[3][3] = 0.0f;
 
 	return MakePerspectiveFovMatrix;
@@ -244,6 +244,9 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 }
 
 Matrix4x4 orthographicmatrix = MakOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
+Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f, 1000.0f);
+Matrix4x4 viewportMatrix = MakeViewPortMatrix(100.0f, 200.0f, 600.0f, 300.0f, 0.0f, 1.0f);
+
 
 static const int kRowHeight = 20;
 static const int kColumnWindth = 60;
@@ -294,6 +297,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 		MatrixScreenPrintf(0, kRowHeight, orthographicmatrix, "orthographicmatrix");
+		MatrixScreenPrintf(0, kRowHeight*6, perspectiveFovMatrix, "perspectiveFovMatrix");
+		MatrixScreenPrintf(0, kRowHeight*11, viewportMatrix, "viewportMatrix");
 
 		///
 		/// ↑描画処理ここまで
