@@ -285,6 +285,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Plane plane = { {0.0f,1.0f,0.0f},1.0f };
 
+	Segment segment{ {0.0f,0.0f,0.0f},{1.0f,1.0f,0.0f} };
+	int Color = WHITE;
+
+
 	/*Segment segment{ {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
 	Vector3 point{ -1.5f,0.6f,0.6f };
 	Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
@@ -316,25 +320,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		//スフィアのImGui
-		ImGui::DragFloat3("Sphere1Center", &sphere1.center.x, 0.01f);
-		ImGui::DragFloat("Sphere1Radius", &sphere1.radius, 0.01f);
-		ImGui::DragFloat3("Sphere2Center", &sphere2.center.x, 0.01f);
-		ImGui::DragFloat("Sphere2Radius", &sphere2.radius, 0.01f);
+		//PlaneのImGui
+		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("Plane.Distance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat("Segment.Diff", &segment.diff.x, 0.01f);
+		Vector3 start = Transforme(Transforme(segment.origin, WorldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transforme(Transforme(Add(segment.origin, segment.diff), WorldViewProjectionMatrix), viewportMatrix);
 
 		//PlaneのImGui
 		ImGui::DragFloat3("PlaneCenter", &plane.normal.x, 0.01f);
 
-		if (IsCollision(sphere1, plane) == true) {
-			sphereColor = RED;
+		if (IsCollision(segment, plane) == true) {
+			Color = RED;
 		}
 		else {
-			sphereColor = WHITE;
+			Color = WHITE;
 		}
 
-	
-
 		ImGui::End();
+	//	plane.normal = Normalize(plane.normal);
 
 		
 		///
@@ -345,9 +350,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		//
 		DrawGrid(WorldViewProjectionMatrix, viewportMatrix);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), Color);
 		DrawPlane(plane, WorldViewProjectionMatrix, viewportMatrix, WHITE);
-		DrawSphere(sphere1, WorldViewProjectionMatrix, viewportMatrix, sphereColor);
-		VectorScreenPrintf(0, 0, cross, "Cross");
 		
 
 		///
