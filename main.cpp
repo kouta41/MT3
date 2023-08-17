@@ -231,13 +231,7 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 
 	return MakeViewportMatrix;
 }
-Vector3 Cross(const Vector3& v1, const Vector3& v2) {
-	Vector3 Cross;
-	Cross.x = v1.y * v2.z - v1.z * v2.y;
-	Cross.y = v1.z * v2.x - v1.x * v2.z;
-	Cross.z = v1.x * v2.y - v1.y * v2.x;
-	return Cross;
-}
+
 
 
 Vector3 v1{ 1.2f,-3.9f,2.5f };
@@ -289,6 +283,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int sphereColor = WHITE;
 	Sphere sphere2 = { 2.0f,0.0f, 0.0f, 0.5f };
 
+	Plane plane = { {0.0f,1.0f,0.0f},1.0f };
+
 	/*Segment segment{ {-2.0f,-1.0f,0.0f},{3.0f,2.0f,2.0f} };
 	Vector3 point{ -1.5f,0.6f,0.6f };
 	Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
@@ -326,7 +322,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("Sphere2Center", &sphere2.center.x, 0.01f);
 		ImGui::DragFloat("Sphere2Radius", &sphere2.radius, 0.01f);
 
-		if (IsCollision(sphere1, sphere2) == true) {
+		//PlaneのImGui
+		ImGui::DragFloat3("PlaneCenter", &plane.normal.x, 0.01f);
+
+		if (IsCollision(sphere1, plane) == true) {
 			sphereColor = RED;
 		}
 		else {
@@ -346,8 +345,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		//
 		DrawGrid(WorldViewProjectionMatrix, viewportMatrix);
+		DrawPlane(plane, WorldViewProjectionMatrix, viewportMatrix, WHITE);
 		DrawSphere(sphere1, WorldViewProjectionMatrix, viewportMatrix, sphereColor);
-		DrawSphere(sphere2, WorldViewProjectionMatrix, viewportMatrix, WHITE);
 		VectorScreenPrintf(0, 0, cross, "Cross");
 		
 

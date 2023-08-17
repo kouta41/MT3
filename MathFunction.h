@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <Novice.h>
 #include <Vector3.h>
 #define _USE_MATH_DEFINES
@@ -14,20 +14,25 @@ struct Sphere {
 };
 
 struct Line {
-	Vector3 origin;//n“_
-	Vector3 diff;//I“_‚Ö‚Ì·•ªƒxƒNƒgƒ‹
+	Vector3 origin;//å§‹ç‚¹
+	Vector3 diff;//çµ‚ç‚¹ã¸ã®å·®åˆ†ãƒ™ã‚¯ãƒˆãƒ«
 };
 struct Ray {
-	Vector3 origin;//n“_
-	Vector3 diff;//I“_‚Ö‚Ì·•ªƒxƒNƒgƒ‹
+	Vector3 origin;//å§‹ç‚¹
+	Vector3 diff;//çµ‚ç‚¹ã¸ã®å·®åˆ†ãƒ™ã‚¯ãƒˆãƒ«
 };
 struct Segment {
-	Vector3 origin;//n“_
-	Vector3 diff;//I“_‚Ö‚Ì·•ªƒxƒNƒgƒ‹
+	Vector3 origin;//å§‹ç‚¹
+	Vector3 diff;//çµ‚ç‚¹ã¸ã®å·®åˆ†ãƒ™ã‚¯ãƒˆãƒ«
 };
 
+struct Plane {
+	Vector3 normal;//æ³•ç·š
+	float distance;//è·é›¢
+};
 Vector3 Add(const Vector3& v1, const Vector3& v2);
 Vector3 Subtract(const Vector3& v1, const Vector3& v2);
+Vector3 Subtract(const Vector3& v1, const float& f1);
 float Length(const Vector3& v);
 Vector3 Transforme(const Vector3& vector, const Matrix4x4& matrix);
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix);
@@ -37,8 +42,10 @@ Vector3 Multiply(float scalar, const Vector3& v);
 float Dot(const Vector3& v1, const Vector3& v2);
 Vector3 Normalize(const Vector3& v1);
 Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2);
-
+Vector3 Cross(const Vector3& v1, const Vector3& v2);
 Vector3 Project(const Vector3& v1, const Vector3& v2);
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
-
+Vector3 Perpendicular(const Vector3& vector);
+void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color);
+bool IsCollision(const Sphere& s1, const Plane& p1);
 bool IsCollision(const Sphere& s1, const Sphere& s2);

@@ -1,4 +1,4 @@
-#include"MathFunction.h"
+Ôªø#include"MathFunction.h"
 
 Vector3 Add(const Vector3& v1, const Vector3& v2)
 {
@@ -6,6 +6,9 @@ Vector3 Add(const Vector3& v1, const Vector3& v2)
 }
 Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
 	return Vector3{ v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
+}
+Vector3 Subtract(const Vector3& v1, const float& f1) {
+	return Vector3{ v1.x - f1, v1.y - f1, v1.z - f1 };
 }
 float Length(const Vector3& v) {
 	return sqrtf(Dot(v, v));
@@ -24,7 +27,7 @@ Vector3 Transforme(const Vector3& vector, const Matrix4x4& matrix) {
 	return result;
 }
 
-// âÒì]çsóÒ
+// ÂõûËª¢Ë°åÂàó
 Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
 	Matrix4x4 m4;
 	m4.m[0][0] = m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] +
@@ -68,7 +71,13 @@ Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
 Vector3 Multiply(float scalar, const Vector3& v) {
 	return { v.x * scalar,v.y * scalar,v.z * scalar };
 }
-
+Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	Vector3 Cross;
+	Cross.x = v1.y * v2.z - v1.z * v2.y;
+	Cross.y = v1.z * v2.x - v1.x * v2.z;
+	Cross.z = v1.x * v2.y - v1.y * v2.x;
+	return Cross;
+}
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
 	const float kGridHalfwidth = 2.0f;
 	const uint32_t kSubdivision = 10;
@@ -76,7 +85,7 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 	Vector3 worldVerticles[2];
 	Vector3 screenVerticles[2];
 	Vector3 ndcVertices;
-	//â°
+	//Ê®™
 	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
 		worldVerticles[0] = { kGridEvery * xIndex - kGridHalfwidth,0.0f,kGridHalfwidth };
 		worldVerticles[1] = { kGridEvery * xIndex - kGridHalfwidth,0.0f,-kGridHalfwidth };
@@ -158,14 +167,14 @@ Vector3 Normalize(const Vector3& v1) {
 	return Result;
 }
 
-//ê≥éÀâeÉxÉNÉgÉã
+//Ê≠£Â∞ÑÂΩ±„Éô„ÇØ„Éà„É´
 Vector3 Project(const Vector3& v1, const Vector3& v2)
 {
 	Vector3 result;
 	result = Multiply(Dot(v1, Normalize(v2)), Normalize(v2));
 	return result;
 }
-//ç≈ãﬂê⁄ì_
+//ÊúÄËøëÊé•ÁÇπ
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment)
 {
 	float length = sqrt(segment.diff.x * segment.diff.x + segment.diff.y * segment.diff.y + segment.diff.z * segment.diff.z);
@@ -176,7 +185,33 @@ Vector3 ClosestPoint(const Vector3& point, const Segment& segment)
 	Vector3 proj = Multiply(distance, normaliseSegment);
 	return Add(segment.origin, proj);
 };
+Vector3 Perpendicular(const Vector3& vector)
+{
+	if (vector.x != 0.0f || vector.y != 0.0f) {
+		return { -vector.y,vector.x,0.0f };
+	}
+	return { 0.0f,-vector.z,vector.y };
+}
+void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
+	Vector3 center = Multiply(plane.distance, plane.normal);
+	Vector3 perpendiculars[4];
+	perpendiculars[0] = Normalize(Perpendicular(plane.normal));
+	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };
+	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);
+	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };
 
+	Vector3 points[4];
+	for (int32_t index = 0; index < 4; ++index) {
+		Vector3 extend = Multiply(2.0f, perpendiculars[index]);
+		Vector3 point = Add(center, extend);
+		points[index] = Transforme(Transforme(point, viewProjectionMatrix), viewportMatrix);
+	}
+
+	Novice::DrawLine((int)points[0].x, (int)points[0].y, (int)points[2].x, (int)points[2].y, color);
+	Novice::DrawLine((int)points[1].x, (int)points[1].y, (int)points[3].x, (int)points[3].y, color);
+	Novice::DrawLine((int)points[2].x, (int)points[2].y, (int)points[1].x, (int)points[1].y, color);
+	Novice::DrawLine((int)points[3].x, (int)points[3].y, (int)points[0].x, (int)points[0].y, color);
+}
 bool IsCollision(const Sphere& s1, const Sphere& s2)
 {
 	float distance = Length(Subtract(s2.center, s1.center));
@@ -184,4 +219,14 @@ bool IsCollision(const Sphere& s1, const Sphere& s2)
 		return true;
 	}
 	return false;
+}
+
+bool IsCollision(const Sphere& s1, const Plane& p1) {
+	float distance = Dot(Normalize(p1.normal), Subtract(s1.center,p1.distance));
+	if (std::abs(distance) <= s1.radius) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
