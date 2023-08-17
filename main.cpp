@@ -1,22 +1,18 @@
 #include <Novice.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include<assert.h>
-#include<cmath>
+#include <assert.h>
+#include <cmath>
+#include<Vector3.h>
+
+#include<Matrix4x4.h>
+#include <imGui.h>
+#include "MathFunction.h"
 
 const char kWindowTitle[] = "LC1B_18_ツシマ_コウタ	";
 
 
-struct Vector3 {
-	float x, y, z;
-};
 
-struct Matrix4x4 {
-	float m[4][4];
-};
-Vector3 Add(const Vector3& v1, const Vector3& v2){
-	return Vector3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
-}
 //逆行列
 Matrix4x4 Inverse(const Matrix4x4& m) {
 	float A;
@@ -170,20 +166,7 @@ Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
 	return m4;
 }
 
-//3座標変換
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
-	Vector3 result;
-	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
-	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
-	assert(w != 0.0f);
-	result.x /= w;
-	result.y /= w;
-	result.z /= w;
 
-	return result;
-}
 
 //  アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
@@ -306,6 +289,7 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 	return Cross;
 }
 
+
 Vector3 v1{ 1.2f,-3.9f,2.5f };
 Vector3 v2{ 2.8f,0.4f,-1.3f };
 Vector3 cross = Cross(v1, v2);
@@ -342,6 +326,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 rotate{};
 	Vector3 translate{ };
 	Vector3 cameraPosition{ 0.0f,0.0f,10.0f };
+	Vector3 cameraRotate{ 0.1f,0.0f,0.0f };
+	Vector3 cameraTranslate{ 0.0f,1.0f,-6.49f };
+
+	Sphere sphere = { 0.0f,0.0f, 0.0f, 1.0f };
 	Vector3 kLoccalVerices[3];
 	kLoccalVerices[0] = { 0.0f,0.0f,0.0f };
 	kLoccalVerices[1] = { 1.0f,1.0f,0.0f };
@@ -360,38 +348,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+	
 
-
-		//Y軸回転をさせる
-		rotate.y += 0.08f;
-		//移動
-		Vector3 moveVector = { 0,0,0 };
-		if (keys[DIK_W]) {
-			moveVector.y = -0.02f;
-		}
-		if (keys[DIK_S]) {
-			moveVector.y = 0.02f;
-		}
-		if (keys[DIK_A]) {
-			moveVector.x = 0.02f;
-		}
-		if (keys[DIK_D]) {
-			moveVector.x = -0.02f;
-		}
-		translate = Add(translate, moveVector);
-
-		//各種行列の計算
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
-		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
-		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 WorldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewPortMatrix(0, 0, 1280.0f, 720.0f, 0.0f, 1.0f);
-		Vector3 screenVertices[3];
-		for (uint32_t i = 0; i < 3; ++i) {
-			Vector3 ndcVertex = Transform(kLoccalVerices[i], worldViewProjectionMatrix);
-			screenVertices[i] = Transform(ndcVertex, viewportMatrix);
-		}
+
+		ImGui::Begin("window");
+		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
+		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		ImGui::End();
 
 		
 		///
@@ -401,7 +372,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		//
-		Novice::DrawTriangle(int(screenVertices[0].x), int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y), int(screenVertices[2].x), int(screenVertices[2].y), RED, kFillModeSolid);
+		DrawGrid(WorldViewProjectionMatrix, viewportMatrix);
+		DrawSphere(sphere, WorldViewProjectionMatrix, viewportMatrix, BLACK);
 
 		VectorScreenPrintf(0, 0, cross, "Cross");
 		
