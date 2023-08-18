@@ -35,6 +35,10 @@ struct TriAngle {
 	Vector3 vertices[3];//頂点
 };
 
+struct AABB {
+	Vector3 min;//!<最小点
+	Vector3 max;//!<最大点
+};
 
 Vector3 Add(const Vector3& v1, const Vector3& v2);
 Vector3 Subtract(const Vector3& v1, const Vector3& v2);
@@ -58,3 +62,5 @@ bool IsCollision(const Sphere& s1, const Sphere& s2);
 bool IsCollision(const Segment& segment, const Plane& plane);
 void DrawTriAngle(const TriAngle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color);
 bool IsCollision(const Segment& segment, const TriAngle& triangle);
+bool IsCollision(const AABB& aabb1, const AABB& aabb2);
+void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);

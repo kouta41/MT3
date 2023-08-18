@@ -303,3 +303,51 @@ bool IsCollision(const Segment& segment, const TriAngle& triangle)
 
 	return false;
 }
+
+void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	Vector3 point[8];
+	point[0] = { aabb.min.x, aabb.min.y, aabb.min.z };
+	point[1] = { aabb.min.x, aabb.min.y, aabb.max.z };
+	point[2] = { aabb.min.x, aabb.max.y, aabb.min.z };
+	point[3] = { aabb.max.x, aabb.min.y, aabb.min.z };
+	point[4] = { aabb.max.x, aabb.max.y, aabb.min.z };
+	point[5] = { aabb.min.x, aabb.max.y, aabb.max.z };
+	point[6] = { aabb.max.x, aabb.min.y, aabb.max.z };
+	point[7] = { aabb.max.x, aabb.max.y, aabb.max.z };
+
+	Vector3 screenpoint[8]{};
+	for (int i = 0; i < 8; i++) {
+		point[i] = Transforme(point[i], viewProjectionMatrix);
+		screenpoint[i] = Transforme(point[i], viewportMatrix);
+	}
+	Novice::DrawLine(int(screenpoint[0].x), int(screenpoint[0].y), int(screenpoint[1].x), int(screenpoint[1].y), color);
+	Novice::DrawLine(int(screenpoint[0].x), int(screenpoint[0].y), int(screenpoint[2].x), int(screenpoint[2].y), color);
+	Novice::DrawLine(int(screenpoint[0].x), int(screenpoint[0].y), int(screenpoint[3].x), int(screenpoint[3].y), color);
+
+	Novice::DrawLine(int(screenpoint[1].x), int(screenpoint[1].y), int(screenpoint[5].x), int(screenpoint[5].y), color);
+	Novice::DrawLine(int(screenpoint[1].x), int(screenpoint[1].y), int(screenpoint[6].x), int(screenpoint[6].y), color);
+
+	Novice::DrawLine(int(screenpoint[2].x), int(screenpoint[2].y), int(screenpoint[4].x), int(screenpoint[4].y), color);
+	Novice::DrawLine(int(screenpoint[2].x), int(screenpoint[2].y), int(screenpoint[5].x), int(screenpoint[5].y), color);
+
+	Novice::DrawLine(int(screenpoint[3].x), int(screenpoint[3].y), int(screenpoint[4].x), int(screenpoint[4].y), color);
+	Novice::DrawLine(int(screenpoint[3].x), int(screenpoint[3].y), int(screenpoint[6].x), int(screenpoint[6].y), color);
+
+	Novice::DrawLine(int(screenpoint[4].x), int(screenpoint[4].y), int(screenpoint[7].x), int(screenpoint[7].y), color);
+	Novice::DrawLine(int(screenpoint[5].x), int(screenpoint[5].y), int(screenpoint[7].x), int(screenpoint[7].y), color);
+	Novice::DrawLine(int(screenpoint[6].x), int(screenpoint[6].y), int(screenpoint[7].x), int(screenpoint[7].y), color);
+}
+
+bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
+	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) &&
+		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)
+		) {
+
+		return true;
+
+	}
+
+	return false;
+
+}
