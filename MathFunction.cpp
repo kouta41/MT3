@@ -351,3 +351,20 @@ bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	return false;
 
 }
+
+bool IsCollision(const AABB& aabb1, const Sphere& s1) {
+
+	Vector3 closestPoint{
+		std::clamp(s1.center.x,aabb1.min.x,aabb1.max.x),
+		std::clamp(s1.center.y,aabb1.min.y,aabb1.max.y),
+		std::clamp(s1.center.z,aabb1.min.z,aabb1.max.z),
+	};
+	//最近接点と中心の距離を求める
+	float distance = Length(Subtract(closestPoint,s1.center));
+	//距離が半径よりも小さければ衝突
+	if (distance <= s1.radius) {
+		return true;
+	}
+	return false;
+
+}

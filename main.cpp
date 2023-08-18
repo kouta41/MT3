@@ -279,7 +279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	kLoccalVerices[1] = { 1.0f,1.0f,0.0f };
 	kLoccalVerices[2] = { -1.0f,1.0f,0.0f };
 
-	Sphere sphere1 = { 0.0f,0.0f, 0.0f, 0.5f };
+	Sphere sphere1 = { 1.0f,0.0f, 0.0f, 0.5f };
 	int sphereColor = WHITE;
 	Sphere sphere2 = { 2.0f,0.0f, 0.0f, 0.5f };
 
@@ -339,9 +339,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		ImGui::DragFloat3("AABB1min", &aabb1.min.x, 0.1f, -1.0f, 5.0f);
 		ImGui::DragFloat3("AABB1max", &aabb1.max.x, 0.1f, -1.0f, 5.0f);
-		ImGui::DragFloat3("AABB2min", &aabb2.min.x, 0.1f, -1.0f, 5.0f);
-		ImGui::DragFloat3("AABB2max", &aabb2.max.x, 0.1f, -1.0f, 5.0f);
-		if (IsCollision(aabb1, aabb2) == true) {
+		ImGui::DragFloat3("Sphere1Center", &sphere1.center.x, 0.01f);
+		ImGui::DragFloat("Sphere1Radius", &sphere1.radius, 0.01f);
+		if (IsCollision(aabb1, sphere1) == true) {
 			Color = RED;
 		}
 		else {
@@ -360,7 +360,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//
 		DrawGrid(WorldViewProjectionMatrix, viewportMatrix);
 		DrawAABB(aabb1, WorldViewProjectionMatrix, viewportMatrix, Color);
-		DrawAABB(aabb2, WorldViewProjectionMatrix, viewportMatrix, WHITE);
+		DrawSphere(sphere1, WorldViewProjectionMatrix, viewportMatrix, WHITE);
 
 
 		///
